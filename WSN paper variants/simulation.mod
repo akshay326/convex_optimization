@@ -20,8 +20,8 @@ param alpha = 10;
 param beta = 0.05;
 param EPS = 0.00000001;
 
-param Pmin = 0.8;
-param Pmax = 0.8;
+param Pmin = 0.7;
+param Pmax = 0.9;
 
 /*
 	Data Part Ends Here
@@ -95,9 +95,9 @@ var C {i in 1..N, w in 0..M,
 
 var C {i in 1..N, w in 0..M, action in 1..L} =	
 	if i = 1 then
-		(XI[i,w,action,1] + XI[i,w,action,2])*sigma[2,w,action]
+		XI[i,w,action,1]*sigma[2,w,action] + XI[i,w,action,2]*sigma[2,w,action]
 	else if i = 2 then
-		(XI[i,w,1,action] + XI[i,w,2,action])*sigma[1,w,action];
+		XI[i,w,1,action]*sigma[1,w,action] + XI[i,w,2,action]*sigma[1,w,action];
 
 
 
