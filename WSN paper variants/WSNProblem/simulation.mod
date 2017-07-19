@@ -1,6 +1,8 @@
 param M = 30;	# No of states
 param N = 2;	# No of players
 param L = 2;	# No of actions , assumed equal for all players
+param Pmin := 0.8;
+param Pmax := 0.8;
 
 # 1 -> Intruder, 2 -> IDS
 param S {1..N,1..L};	# Set f strategies for every player
@@ -20,8 +22,7 @@ param alpha = 10;
 param beta = 0.05;
 param EPS = 0.00000001;
 
-param Pmin = 0.7;
-param Pmax = 0.9;
+
 
 /*
 	Data Part Ends Here
@@ -110,7 +111,7 @@ minimize diff_to_ideal_value:
 
 subject to max_condition {i in 1..N, w in 0..M, a in 1..L}:
 		value[i, w] >= C[i,w,a] 
-			   + delta*sum {b in 1..L, w2 in 0..M} value[i,w2]*PI[w, w2,a,b]*(if i=1 then sigma[2,w,b] else sigma[1,w,b]);
+			   + delta*sum {b in 1..L, w2 in 0..M} value[i,w2]*(if i=1  then sigma[2,w,b]*PI[w, w2,a,b] else PI[w, w2,b,a]*sigma[1,w,b]);
 
 subject to probab_sum {i in 1..N, w in 0..M}:
 		sum {a in 1..L} (sigma[i,w,a]) = 1;

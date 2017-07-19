@@ -1,0 +1,26 @@
+reset;
+for {1..36}{ print ' '; } 
+
+model simucopy.mod;
+# option solver LOQO;
+# option solver MINOS;
+
+param T = 200;
+set diff := {0.01,0.03,0.06,0.1,0.15};
+ 
+for {d in diff}{
+	var values{1..T};
+	for{i in 1..T}{
+		
+		unfix Pd;
+		let Pd := 0.8 + d*(1 - 2*(i/T));
+		fix Pd;
+		
+		solve;
+		let values[i] := sum {m in 0..M} value[2,m];
+		
+		print " ";
+		print "Value -> ",values[i];
+		print " Pd -> ", Pd; 
+	}
+}

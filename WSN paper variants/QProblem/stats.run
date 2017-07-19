@@ -1,0 +1,30 @@
+reset;
+
+for {1..36}{ print ' '; } 
+
+model queue_prob.mod;
+# option solver LOQO;
+# option solver MINOS;
+
+/*
+param muHigh{i in 1..2, j in 0..5} = 
+	if j = 0 then 1/11 else
+	if i=1 then	
+		1/(10 + 2*j)
+	else
+		1/(12 - 2*j);
+	
+param muLow{i in 1..2, j in 0..5} = 
+	if j = 0 then 1/20 else
+	if i=1 then	
+		1/(19 + 2*j)
+	else
+		1/(21 - 2*j);
+*/
+
+solve;
+#display sigma;
+print(sum {i in 0..S} value[2,i];
+
+#print(sum {i in 0..S} value[1,i]*sigma[1,i,1]*sigma[1,i,2]);
+#print(sum {i in 0..S} value[2,i]*sigma[2,i,2]*sigma[2,i,2]);

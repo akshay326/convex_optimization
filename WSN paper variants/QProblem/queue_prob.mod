@@ -8,8 +8,8 @@ param lamda{i in 1..I} =
 	else 1/25;
 	
 param mu {i in 1..I} =
-	if i =1 then Uniform(1/12,1/10)
-	else Uniform(1/21,1/19);
+	if i =1 then 1/11
+	else 1/20;#Uniform(1/21,1/19);
 	
 param theta {1..J, 1..J};
 let theta[1,1] := 90;
@@ -42,7 +42,7 @@ var value {1..I, 0..S};
 	written there are I guess wrong
 */
 
-param PI {k in 0..S, s in 0..S, a1 in 1..J, a2 in 1..J} = 
+param PI {s in 0..S, k in 0..S, a1 in 1..J, a2 in 1..J} = 
 	if s!=0 and k = s-1 then 
 		mu[a1]/(lamda[a2] + mu[a1])  
 	else if s != S and k = s+1 then
@@ -115,7 +115,7 @@ minimize diff_to_ideal_value:
 
 subject to max_condition {i in 1..I, s in 0..S, a in 1..J}:
 		value[i, s] >= C[i,s,a] 
-			   + beta*sum {b in 1..J, w2 in 0..S} value[i,w2]*PI[s, w2,a,b]*(if i=1 then sigma[2,s,b] else sigma[1,s,b]);
+			   + beta*sum {b in 1..J, w2 in 0..S} value[i,w2]*(if i=1 then PI[s, w2,a,b]*sigma[2,s,b] else PI[s, w2,b,a]*sigma[1,s,b]);
 
 subject to probab_sum {i in 1..I, s in 0..S}:
 		sum {a in 1..J} (sigma[i,s,a]) = 1;
