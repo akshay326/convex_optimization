@@ -66,9 +66,9 @@ param XI {i in 1..N, w in 0..M, a1 in 1..L, a2 in 1..L } =
 */
 var C {i in 1..N, w in 0..M, a1 in 1..L, a2 in 1..L} = 
 	if i = 1 then
-		XI[1,w,a1,a2]*sigma[2,w,a1]
+		XI[1,w,a1,a2]*sigma[2,w,a2]
 	else
-		XI[2,w,a1,a2]*sigma[1,w,a2];
+		XI[2,w,a1,a2]*sigma[1,w,a1];
 
 /*
 	Took A(w) as 2*M*L^N x M*L^N
@@ -176,20 +176,20 @@ var t{1..N, 0..M, 0..M, 1..L, 1..L};
 minimize difference: 
 	sum {i in 1..N, w in 0..M} (
 		value[i,w]
-		- (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*sigma[i,w,s2])
-		- (delta*sum {w2 in 0..M} (value[i,w2]*(sum{s1 in 1..L, s2 in 1..L} sigma[i,w,s1]*sigma[i,w,s2]*t[i,w,w2,s1,s2])))
+		- (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*(if i =1 then sigma[1,w,s1] else sigma[2,w,s2]) )
+		- (delta*sum {w2 in 0..M} (value[i,w2]*(sum{s1 in 1..L, s2 in 1..L} sigma[1,w,s1]*sigma[2,w,s2]*t[i,w,w2,s1,s2])))
 	);
 
 
 subject to in1 {i in 1..N, w in 0..M, l_dash in 1..L}:
 	  (delta*sum {w_next in 0..M, s1 in 1..L, s2 in 1..L} Z[i,w,w_next,s1,s2,l_dash]*t[i,w,w_next,s1,s2])
-	+ (sum{s2 in 1..L} C[i,w,l_dash,s2])   
+	+ (sum{s2 in 1..L} ( if i=1 then C[i,w,l_dash,s2] else C[i,w,s2,l_dash] ) )   
 	>= value[i, w];
 		
 		
 subject to in2 {i in 1..N, w in 0..M}:
 	value[i, w] >= 
-	  (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*sigma[i,w,s2])
+	  (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*(if i =1 then sigma[1,w,s1] else sigma[2,w,s2]))
 	+ (sum{type in 1..2, w_next in 0..M, s1 in 1..L, s2 in 1..L} b[w,type,w_next,s1,s2]*q[i,w,type,w_next,s1,s2])
 	+ (sum{s1 in 1..L, s2 in 1..L} r[i,w,s1,s2]);
 	
