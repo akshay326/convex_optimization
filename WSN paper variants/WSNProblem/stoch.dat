@@ -1,18 +1,29 @@
 data;
 
 param W := 30;
-
-param alpha := 10;
-param beta := 0.05;
-
 param discount = 0.9;
 
-param Ch1 := 8;
-param Ch2 :=10;
-param Cl1 :=0;
-param Cl2 :=2;
+param constants:=
+	high 1 	8
+	high 2 10
+	low	 1  0
+	low  2  2;
 
-param:  s1:=
+param  S:=
+		low 1    0
+		high 1   8
+		low 2	 10
+     	high 2	 50;
+
+/*
+
+param  S:=
+		low 1    0
+		high 1   8
+		low 2	 10
+     	high 2	 50;
+     	
+     	param:  s1:=
 		low     0
 		high    8
 ;
@@ -21,7 +32,4 @@ param: s2:=
 	 low 10
      high 50
 ;
-	
-param Pmin := 0.8;
-param Pmax := 0.8;
-
+*/

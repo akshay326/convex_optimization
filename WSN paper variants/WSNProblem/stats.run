@@ -1,15 +1,25 @@
 reset;
-for {1..36}{ print ' '; } 
 
-model simucopy.mod;
+model e.mod;
+#model nominal_solution.mod;
+data stoch.dat;
+
+# option show_status 0;
+# option show_status 1;
+
 # option solver LOQO;
 # option solver MINOS;
 
-param T = 200;
-set diff := {0.01,0.03,0.06,0.1,0.15};
+solve;
+
+param T = 10;
+set delta := {0.01,0.03,0.06,0.1,0.15};
+
+var values{delta,players,1..T};
+var avg{delta,players};
+var SD{delta,players};
  
-for {d in diff}{
-	var values{1..T};
+for {d in delta}{	
 	for{i in 1..T}{
 		
 		unfix Pd;
@@ -17,10 +27,16 @@ for {d in diff}{
 		fix Pd;
 		
 		solve;
-		let values[i] := sum {m in 0..M} value[2,m];
-		
-		print " ";
-		print "Value -> ",values[i];
-		print " Pd -> ", Pd; 
+		let values[d,1,i] := sum {m in states} value[1,m];
+		let values[d,2,i] := sum {m in states} value[2,m];
+	}
+	
+	for{ p in players}{
+		let avg[d,p] := (sum {i in 1..T} values[d,p,i])/T;
+		let SD[d,p]  := ((sum{i in 1..T} (values[d,p,i]-avg[d,p])^2)/T)^0.5;
 	}
 }
+
+for{1..36} print('');
+display avg;
+display SD;

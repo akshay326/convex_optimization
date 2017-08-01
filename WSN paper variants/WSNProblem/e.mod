@@ -2,7 +2,7 @@
 
 param W;
 param discount;
-param Pd = Uniform(0.8,0.8);
+var Pd;
 
 
 set actions = {"low","high"};
@@ -26,9 +26,9 @@ param XI {i in players, w in states, a1 in actions, a2 in actions} =
 	else
 		 cost[w] + constants[a2,1];
 
-param defend_probab {a1 in actions, a2 in actions} = min( 0.16*Pd*S[a2,2]/(S[a1,1] + 0.000001), 1);
+var defend_probab {a1 in actions, a2 in actions} = min( 0.16*Pd*S[a2,2]/(S[a1,1] + 0.000001), 1);
 
-param PI {w in states, w_next in states, a in actions, b in actions} =  
+var PI {w in states, w_next in states, a in actions, b in actions} =  
 					(if w_next = w-1 then (w*defend_probab[a,b]/W) 
 					
 					else (if w_next = w then (w*(1-defend_probab[a,b])/W  + (W-w)*defend_probab[a,b]/W)   
@@ -41,19 +41,21 @@ var C { i in players, w in states} =
 
 
 var PIw {w in states, w_next in states} = 
-	sum { a in actions, b in actions } sigma[1,w,a]*sigma[2,w,b]*PI[w,w_next,a,b] ;
+	sum{a1 in actions, a2 in actions}  PI[w,w_next,a1,a2]*sigma[1,w,a1]*sigma[2,w,a2];
 
 
 minimize total_val : 
-		sum {i in players, w in states}(
-			 C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next] - value[i,w] 
-		);
+	sum {i in players, w in states}(
+		 C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next] - value[i,w] 
+	);
 
 subject to indiv_value {i in players, w in states,a in actions}:
-value [i,w] <=  C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next];
+	value [i,w] <=  C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next];
 		
-subject to probab_sum { i in players, w in states } : sum {a in actions} sigma[i,w,a] = 1 ;
+subject to probab_sum { i in players, w in states } : 
+	sum {a in actions} sigma[i,w,a] = 1 ;
 
-subject to nonnegative {i in players, w in states, a in actions} : sigma[i,w,a]>=0;
+subject to nonnegative {i in players, w in states, a in actions} : 
+	sigma[i,w,a]>=0;
 
 

@@ -1,4 +1,4 @@
-#	reset;model corollary.mod;option show_status 1;option single_step 1;solve;
+#	reset;model corollary2.mod;option show_status 1;option single_step 1;solve;
 # xref PI; gave nothing => nothing is dependent on PI
 #						=> replace t by PI
 
@@ -52,7 +52,7 @@ param PI {w in 0..M, w_next in 0..M, a1 in 1..L, a2 in 1..L} =
 		(M-w)*(1-p[a1,a2])/M 
 	else 
 		0;
-
+	
 param cost {w in 0..M} = alpha * (exp(beta*w)-1);
 
 param XI {i in 1..N, w in 0..M, a1 in 1..L, a2 in 1..L } =	
@@ -67,9 +67,9 @@ param XI {i in 1..N, w in 0..M, a1 in 1..L, a2 in 1..L } =
 */
 var C {i in 1..N, w in 0..M, a1 in 1..L, a2 in 1..L} = 
 	if i = 1 then
-		XI[1,w,a1,a2]*sigma[2,w,a1]
+		XI[1,w,a1,a2]*sigma[2,w,a2]
 	else
-		XI[2,w,a1,a2]*sigma[1,w,a2];
+		XI[2,w,a1,a2]*sigma[1,w,a1];
 
 /*
 	Took A(w) as 2*M*L^N x M*L^N
@@ -146,51 +146,54 @@ var Z{i in 1..N, w in 0..M, w_next in 0..M, s1 in 1..L, s2 in 1..L,l in 1..L};
 /*
 	q(i,w) is 2*M*L^N  So q is N*M*( 2*M*L^N )
 	r(i,w) is L^N 	   So r is N*M*( L^N )
-	t(i,w) is M*L^N    So t is N*M*( M*L^N )
-	
-	t(i, sigma(w)) is vector of len M
-	=[sum{s1 in 1..L, s2 in 1..L} sigma[i,w,s1]*sigma[i,w,s2]*t[i,w,w_next,s1,s2]]
-		w_next in 0..M
-	No need to define these
 */
 var q{1..N, 0..M, 1..2, 0..M, 1..L, 1..L};
 var r{1..N, 0..M, 1..L, 1..L};
-var t{1..N, 0..M, 0..M, 1..L, 1..L};
 
 /*
-	# CHECK 2: A(w)*p(w) >= b(w)
+	t(i,w) is M*L^N    So t is N*M*( M*L^N )
 	
-	for{w in 0..M, type in 1..2, w1 in 0..M, a1 in 1..L, a2 in 1..L}{
-		print((sum {w_next in 0..M, s1 in 1..L, s2 in 1..L} A[w,type,w1,a1,a2,w_next,s1,s2]*PI[w_next,w,s1,s2])-b[w,type,w1,a1,a2]);
-	}
+	Note that t is nothing but a value of PI,
+		at those points which maximize cost of the game
+		for player i by varying his strartegy, given other guy fixed 
+		
+			if sigma[1,w,1]*(XI[i,w,1,s2] + delta*sum{w_bar in 0..M}(PI[w,w_bar,1,s2]*value[1,w_bar])) > 
+			sigma[1,w,2]*(XI[i,w,2,s2] + delta*sum{w_bar in 0..M}(PI[w,w_bar,2,s2]*value[1,w_bar])) then
 */
 
-/*
-	# CHECK 1: D(w)*p(w) = 1
-	
-	for{w in 0..M, a1 in 1..L, a2 in 1..L}{
-		print(sum {w_next in 0..M, s1 in 1..L, s2 in 1..L} (D[w,a1,a2,w_next,s1,s2]*PI[w_next,w,s1,s2]));
-	}
-*/
+var t{i in 1..N, w in 0..M, w_next in 0..M, s1 in 1..L, s2 in 1..L} =
+	if i = 1 then 
+		if sigma[1,w,1]*(XI[i,w,1,s2] + delta*sum{w_bar in 0..M}(PI[w,w_bar,1,s2]*value[1,w_bar])) >
+			sigma[1,w,2]*(XI[i,w,2,s2] + delta*sum{w_bar in 0..M}(PI[w,w_bar,2,s2]*value[1,w_bar])) then
+			PI[w,w_next,1,s2]
+		else
+			PI[w,w_next,2,s2]
+	else
+		if sigma[2,w,1]*(XI[i,w,s1,1] + delta*sum{w_bar in 0..M}(PI[w,w_bar,s1,1]*value[2,w_bar])) >
+			sigma[2,w,2]*(XI[i,w,s1,2] + delta*sum{w_bar in 0..M}(PI[w,w_bar,s1,2]*value[2,w_bar])) then
+			PI[w,w_next,s1,1]
+		else
+			PI[w,w_next,s1,2];
+			
 
 #/*
 minimize difference: 
 	sum {i in 1..N, w in 0..M} (
 		value[i,w]
-		- (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*sigma[i,w,s2])
-		- (delta*sum {w2 in 0..M} (value[i,w2]*(sum{s1 in 1..L, s2 in 1..L} sigma[i,w,s1]*sigma[i,w,s2]*t[i,w,w2,s1,s2])))
+		- (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*(if i =1 then sigma[1,w,s1] else sigma[2,w,s2]) )
+		- (delta*sum {w2 in 0..M} (value[i,w2]*(sum{s1 in 1..L, s2 in 1..L} sigma[1,w,s1]*sigma[2,w,s2]*t[i,w,w2,s1,s2])))
 	);
 
 
 subject to in1 {i in 1..N, w in 0..M, l_dash in 1..L}:
 	  (delta*sum {w_next in 0..M, s1 in 1..L, s2 in 1..L} Z[i,w,w_next,s1,s2,l_dash]*t[i,w,w_next,s1,s2])
-	+ (sum{s2 in 1..L} C[i,w,l_dash,s2])   
+    + (sum{actions in 1..L} ( if i=1 then C[i,w,l_dash,actions] else C[i,w,actions,l_dash] ) )    
 	>= value[i, w];
 		
 		
 subject to in2 {i in 1..N, w in 0..M}:
 	value[i, w] >= 
-	  (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*sigma[i,w,s2])
+	  (sum {s1 in 1..L, s2 in 1..L} C[i,w,s1,s2]*(if i =1 then sigma[1,w,s1] else sigma[2,w,s2]) )
 	+ (sum{type in 1..2, w_next in 0..M, s1 in 1..L, s2 in 1..L} b[w,type,w_next,s1,s2]*q[i,w,type,w_next,s1,s2])
 	+ (sum{s1 in 1..L, s2 in 1..L} r[i,w,s1,s2]);
 	
