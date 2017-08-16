@@ -1,7 +1,6 @@
 reset;
 
 model e.mod;
-#model nominal_solution.mod;
 data stoch.dat;
 
 # option show_status 0;
@@ -10,9 +9,7 @@ data stoch.dat;
 # option solver LOQO;
 # option solver MINOS;
 
-solve;
-
-param T = 10;
+param T = 200;
 set delta := {0.01,0.03,0.06,0.1,0.15};
 
 var values{delta,players,1..T};
@@ -37,6 +34,6 @@ for {d in delta}{
 	}
 }
 
-for{1..36} print('');
+# for{1..36} print('');
 display avg;
 display SD;

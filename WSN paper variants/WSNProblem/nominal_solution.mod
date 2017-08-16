@@ -50,7 +50,7 @@ minimize total_val :
 		);
 
 subject to indiv_value {i in players, w in states,a in actions}:
-value [i,w] <=  C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next];
+	value [i,w] <=  C[i,w] + discount*sum {w_next in states} PIw[w, w_next]*value[i,w_next];
 		
 subject to probab_sum { i in players, w in states } : sum {a in actions} sigma[i,w,a] = 1 ;
 

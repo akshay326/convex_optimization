@@ -1,0 +1,24 @@
+
+set states := 's1' 's2';
+set actions := 1 2;
+
+param T = 2;
+
+param f:	s1		s2:=
+	1		1		1
+	2		0		0;	
+
+param NA:	s1		s2:=
+	1		1		1
+	2		1		0;	
+
+param r:	s1		s2:=
+	1		8		0
+	2		5		0;
+	
+	
+param p:	s1		s2:=
+	s1	1	0.25	0.5
+	s1	2	0.6		0.2
+	s2	1	0		0.8
+	s2	2	0		0;

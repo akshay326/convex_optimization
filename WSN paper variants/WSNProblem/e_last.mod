@@ -3,6 +3,7 @@
 param W;
 param discount;
 var Pd = 0.8;
+fix Pd;
 
 
 set actions = {"low","high"};
@@ -29,32 +30,35 @@ param XI {i in players, w in states, a1 in actions, a2 in actions} =
 var defend_probab {a1 in actions, a2 in actions} = min( 0.16*Pd*S[a2,2]/(S[a1,1] + 0.000001), 1);
 
 var PI {w in states, w_next in states, a in actions, b in actions} =  
-	if w_next = w-1 then 
-		(w*defend_probab[a,b]/W)
-	else if w_next = w then 
-		(w*(1-defend_probab[a,b])/W  + (W-w)*defend_probab[a,b]/W)
-	else if w_next = w+1 then  
-		((W-w)*(1-defend_probab[a,b])/W)  
-	else 0;
+					(if w_next = w-1 then (w*defend_probab[a,b]/W) 
+					
+					else (if w_next = w then (w*(1-defend_probab[a,b])/W  + (W-w)*defend_probab[a,b]/W)   
+					
+					else  (if w_next = w+1 then  ((W-w)*(1-defend_probab[a,b])/W)  else 0   )    ))  ;
+					
+
+
+var C { i in players, w in states, a in actions} = 
+	if i = 1 then
+		(sum{b in actions} XI[i,w,a,b])*sigma[i,w,a]
+	else
+		(sum{b in actions} XI[i,w,b,a])*sigma[i,w,a];
+
+
+var PIw {w in states, w_next in states} = 
+	sum { a in actions, b in actions } sigma[1,w,a]*sigma[2,w,b]*PI[w,w_next,a,b] ;
 
 
 minimize total_val : 
 		sum {i in players, w in states}(
 			 value[i,w]
-			- sum {a1 in actions, a2 in actions} 
-				sigma[1,w,a1]*sigma[2,w,a2]*(XI[i,w,a1,a2] + discount*sum {w2 in states} (value[i,w2]*PI[w2,w,a1,a2])) 
+			- (sum {a in actions} C[i,w,a]*sigma[i,w,a])
+			- (discount*sum {w2 in states} (value[i,w2]*PIw[w2, w])) 
 		);
 
-# Note u is current player's strategy, x is others
-
-subject to indi_value_1 {w in states,u in actions}:
-	value[1, w] >= 
-		sum{x in actions} sigma[2,w,x]*(XI[1,w,u,x] + discount*sum{w2 in states} (value[1,w2]*PI[w2,w,u,x]));
-	
-
-subject to indi_value_2 {w in states,u in actions}:
-	value[2, w] >= 
-		sum{x in actions} sigma[1,w,x]*(XI[2,w,x,u] + discount*sum{w2 in states} (value[2,w2]*PI[w2,w,x,u]));
+subject to indiv_value {i in players, w in states,a in actions}:
+	value[i, w] >= C[i,w,a] 
+	+ discount*sum {b in actions, w2 in states} value[i,w2]*(if i=1 then PI[w,w2,a,b]*sigma[2,w,b] else PI[w,w2,b,a]*sigma[1,w,b]);
 		
 subject to probab_sum { i in players, w in states } : sum {a in actions} sigma[i,w,a] = 1 ;
 

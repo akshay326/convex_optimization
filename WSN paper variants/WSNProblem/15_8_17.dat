@@ -1,0 +1,20 @@
+data;
+
+param W := 30;
+param discount = 0.9;
+
+param C1:=
+	high 8
+	low	 0;
+
+param C2:=
+	high 10
+	low  2;
+
+param S1:=
+	low	 0
+	high 8;
+
+param S2:=
+	low	 10
+ 	high 50;

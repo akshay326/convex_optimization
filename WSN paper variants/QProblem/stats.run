@@ -1,30 +1,37 @@
-reset;
+reset; 
 
-for {1..36}{ print ' '; } 
-
-model queue_prob.mod;
+model 16_8_17.mod;
+data 16_8_17.dat;
 # option solver LOQO;
 # option solver MINOS;
 
-/*
-param muHigh{i in 1..2, j in 0..5} = 
-	if j = 0 then 1/11 else
-	if i=1 then	
-		1/(10 + 2*j)
-	else
-		1/(12 - 2*j);
+# option show_status 0;
+# option show_status 1;
+
+param T = 50;
+
+# mu['low'] has mean 1/20, mu['high'] 1/11
+set delta := 1..5;
+var values{delta,1..T};
+var avg{delta};
+var SD{delta};
+ 
+for {d in delta}{	
+	for{i in 1..T}{
+		
+		unfix mu;
+		let mu['low'] := 1/(20 + d*(1 - 2*(i/T)));
+		let mu['high']:= 1/(11 + d*(1 - 2*(i/T)));
+		fix mu;
+		
+		solve;
+		let values[d,i] := (sum {m in states} value['SrvcPro',m])/31;
+	}
 	
-param muLow{i in 1..2, j in 0..5} = 
-	if j = 0 then 1/20 else
-	if i=1 then	
-		1/(19 + 2*j)
-	else
-		1/(21 - 2*j);
-*/
+	let avg[d] := (sum {i in 1..T} values[d,i])/T;
+	let SD[d]  := ((sum{i in 1..T} (values[d,i]-avg[d])^2)/T)^0.5;
+}
 
-solve;
-#display sigma;
-print(sum {i in 0..S} value[2,i];
-
-#print(sum {i in 0..S} value[1,i]*sigma[1,i,1]*sigma[1,i,2]);
-#print(sum {i in 0..S} value[2,i]*sigma[2,i,2]*sigma[2,i,2]);
+for{1..36} print('');
+display avg;
+display SD;

@@ -9,27 +9,8 @@ param constants:=
 	low	 1  0
 	low  2  2;
 
-param  S:=
-		low 1    0
-		high 1   8
-		low 2	 10
-     	high 2	 50;
-
-/*
-
-param  S:=
-		low 1    0
-		high 1   8
-		low 2	 10
-     	high 2	 50;
-     	
-     	param:  s1:=
-		low     0
-		high    8
-;
-		
-param: s2:=
-	 low 10
-     high 50
-;
-*/
+param S:=
+	low	 1	0
+	high 1	8
+	low	 2  10
+ 	high 2  50;
