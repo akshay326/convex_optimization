@@ -1,0 +1,31 @@
+data;
+
+set players:= 'SrvcPro' 'Router';
+set actions:= 'high' 'low';
+set type:= 'lower' 'upper';
+
+
+param S = 30;
+
+param theta:=
+	low low 90
+	low high 90
+	high low 110
+	high high 110;
+	
+param rho:=
+	low low 70
+	low high 20
+	high low 30
+	high high 60;
+
+
+param mu:=
+	high 0.090909
+	low 0.05;
+	
+param lamda:= 
+	high 0.1
+	low 0.04;	
+
+param beta = 0.95;

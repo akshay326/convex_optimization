@@ -8,7 +8,7 @@ data 16_8_17.dat;
 # option show_status 0;
 # option show_status 1;
 
-param T = 50;
+param T = 300;
 
 # mu['low'] has mean 1/20, mu['high'] 1/11
 set delta := 1..5;

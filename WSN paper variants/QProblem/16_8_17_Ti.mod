@@ -1,4 +1,4 @@
-# reset;model 16_8_17_stable.mod;data 16_8_17_stable.dat;solve;
+# reset;model 16_8_17_Ti.mod;data 16_8_17_stable.dat;solve;
 
 param S;
 param beta;
@@ -16,8 +16,8 @@ param rho {actions, actions};
 
 /*
 	Fig 2, pg 13: for{w in states}{print(sum{a in actions} lamda[a]*sigma['Router',w,a]);}
-	Fig 3a		: for{w in states}{print(sum{a in actions} mu[a]*sigma['SrvcPro',w,a]);}
-	Fig 3b		: 
+	Fig 3a		: for{w in states}{print(sum{a in actions} mu[a]*sum{w_ in states}(sigma['SrvcPro',w_,a]*T['SrvcPro',w_,w]));}
+	Fig 3b		: for{w in states}{print(sum{a in actions} mu[a]*sum{w_ in states}(sigma['SrvcPro',w_,a]*T['Router',w_,w]));}
 */
 var sigma {players, states, actions} >= 0;
 var value {players, states};
@@ -41,6 +41,20 @@ param h {s in states} =
 param XI{s in states, a1 in actions, a2 in actions } = 
 	h[s] + theta[a1,a2] - rho[a1,a2];
 
+var t{i in players,k in states, w in states, a1 in actions, a2 in actions}=
+	if i='SrvcPro' then 
+		if (XI[w,'low',a2] + beta*sum{w_ in states} value['SrvcPro',w_]*PI[w_,w,'low',a2]) > (XI[w,'high',a2] + beta*sum{w_ in states} value['SrvcPro',w_]*PI[w_,w,'high',a2]) then
+			PI[k,w,'low',a2]
+		else
+			PI[k,w,'high',a2]
+	else
+		if (-XI[w,a1,'low'] + beta*sum{w_ in states} value['Router',w_]*PI[w_,w,a1,'low']) > (-XI[w,a1,'high'] + beta*sum{w_ in states} value['Router',w_]*PI[w_,w,a1,'high']) then
+			PI[k,w,a1,'low']
+		else
+			PI[k,w,a1,'high'];
+
+var T{i in players, k in states, s in states}=
+	sum{a1 in actions, a2 in actions} sigma['SrvcPro',s,a1]*sigma['Router',s,a2]*t[i,k,s,a1,a2];
 
 
 
