@@ -1,0 +1,11 @@
+# option minos_options 'meminc=15' 'iterations_limit=100';
+# option loqo_options 'iterlim=100';
+
+# option solver LOQO;
+# option solver MINOS;
+
+# option show_status 0;
+# option show_status 1;
+
+# include problem.run;
+reset; option solver LOQO;model 26_8_17.mod; data 26_8_17.dat;solve;

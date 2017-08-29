@@ -1,0 +1,62 @@
+/*	
+	Infeaslibity -> too constrained problem
+	
+	Possible Edits: 
+		Indexing of variables
+		
+		
+
+	Reduces misfits:
+		
+		Turn beta*Y*x to beta*z in In3
+		Set iterlim 1000 , takes 9.5 min
+		
+	least misfits = 373(e4 in objective), 369 (for e4 as inequality)
+*/
+var misfits = 0;
+	for{i in players,w in states, a1 in actions, a2 in actions,w_next in states}{
+		if PIUpper[w,a1,a2,w_next] >= t[i,w,a1,a2,w_next] >= PILower[w,a1,a2,w_next] then
+			let misfits := misfits + 1;	
+	}
+	print(7688-misfits);
+/*	
+	var misfits = 0;
+	for{i in players,w in states, a1 in actions, a2 in actions,w_next in states}{
+		if PIUpper[w,a1,a2,w_next] >= t[i,w,a1,a2,w_next] >= PILower[w,a1,a2,w_next] then
+			let misfits := misfits + 1;	
+	}
+	print(7688-misfits);
+
+	in1
+	for {i in players,curr in actions, w in states}{
+		  print((sum{other in actions} E[i,w,other,curr]) 
+		+ (beta*sum {w_next in states, s1 in actions, s2 in actions} Y[i,w,s1,s2,w_next,curr]*t[i,w,s1,s2,w_next])    
+		- value[i,w]);
+	}
+
+
+	in2
+	for{i in players,w in states}{
+	print(value[i,w] - (sum {other in actions, curr in actions} E[i,w,other,curr]*sigma[i,w,curr])
+	- (sum{lim in lim_type, w_next in states, s1 in actions, s2 in actions} b[w,lim,s1,s2,w_next]*m[i,w,lim,s1,s2,w_next])
+	- (sum{s1 in actions, s2 in actions} n[i,w,s1,s2]));
+	}
+
+
+	in3
+	for{i in players, w in states, w1 in states, a1 in actions, a2 in actions}{
+		print((sum{lim in lim_type, s1 in actions, s2 in actions, w2 in states} A[w,lim,a1,a2,w_next,s1,s2,w2]*m[i,w,lim,s1,s2,w2])
+   		+ (sum{s1 in actions, s2 in actions} Q[w,a1,a2,s1,s2,w_next]*n[i,w,s1,s2])
+		- beta*(Y[i,w,a1,a2,w_next,'low']*sigma[i,w,'low'] + Y[i,w,a1,a2,w_next,'high']*sigma[i,w,'high']));
+	}
+
+
+	e2
+	for{i in players, w in states, a1 in actions, a2 in actions}{
+		print((sum {s1 in actions, s2 in actions, w_next in states} Q[w,a1,a2,s1,s2,w_next]*t[i,w,s1,s2,w_next]) - 1);
+	}
+	
+	e4
+	for {i in players,w in states}
+		{print(value[i,w] - sum{other in actions, curr in actions}(E[i,w,other,curr]*sigma[i,w,curr]) - beta*sum{aux in states}(T[i,w,aux]*value[i,aux]));}
+*/
